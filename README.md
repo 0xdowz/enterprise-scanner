@@ -2,6 +2,9 @@
 
 A next-generation web security scanner with advanced threat detection capabilities, AI-powered anomaly detection, and comprehensive vulnerability assessment features.
 
+![carbon](https://github.com/user-attachments/assets/fd37c388-faf7-479c-8314-9b8dad409365)
+
+
 ## Features
 
 - **Intelligent Crawling**: Automatically discovers and maps web application endpoints
