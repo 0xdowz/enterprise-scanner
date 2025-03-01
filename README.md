@@ -27,7 +27,7 @@ A next-generation web security scanner with advanced threat detection capabiliti
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/enterprise-scanner.git
+git clone https://github.com/0xdowz/enterprise-scanner.git
 cd enterprise-scanner
 ```
 
