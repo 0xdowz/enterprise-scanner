@@ -5,21 +5,6 @@ A next-generation web security scanner with advanced threat detection, AI-powere
 ---
 ![carbon](https://github.com/user-attachments/assets/abc94a10-f469-4400-a0f4-38bbd138b9f4)
 
-## Table of Contents 📑
-
-- [Overview](#overview)
-- [Features](#features)
-- [Prerequisites](#prerequisites)
-- [Installation](#installation)
-- [Usage](#usage)
-- [Detailed Feature Descriptions](#detailed-feature-descriptions)
-- [Security Considerations](#security-considerations)
-- [Contributing](#contributing)
-- [License](#license)
-- [Disclaimer](#disclaimer)
-- [Support](#support)
-
----
 
 ##Overview 🌐🔍
 
