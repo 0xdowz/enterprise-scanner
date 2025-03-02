@@ -6,13 +6,13 @@ A next-generation web security scanner with advanced threat detection, AI-powere
 ![carbon](https://github.com/user-attachments/assets/abc94a10-f469-4400-a0f4-38bbd138b9f4)
 
 
-##Overview 🌐🔍
+## Overview 🌐🔍
 
 AWS Enterprise Scanner automates the discovery, mapping, and testing of web application endpoints. Leveraging AI and threat intelligence, it identifies vulnerabilities such as Server-Side Template Injection (SSTI) and insecure deserialization. Whether you need a comprehensive audit or a quick reconnaissance, this tool adapts to your needs with style and speed. ⚡🔥
 
 ---
 
-##Features ⭐
+## Features ⭐
 
 - **Intelligent Crawling**: Automatically discovers and maps web application endpoints. 🤖🕸️
 - **Advanced Fuzzing**: Tests endpoints for vulnerabilities like SSTI and insecure deserialization. 🔍💥
@@ -25,7 +25,7 @@ AWS Enterprise Scanner automates the discovery, mapping, and testing of web appl
 
 ---
 
-##Prerequisites ⚙️
+## Prerequisites ⚙️
 
 - **Python**: Version 3.8 or higher is required. 🐍
 - **pip**: The package installer for Python. 📦
@@ -34,7 +34,7 @@ AWS Enterprise Scanner automates the discovery, mapping, and testing of web appl
 
 ---
 
-##Installation 🛠️
+## Installation 🛠️
 
 Follow these steps to install and set up AWS Enterprise Scanner:
 
@@ -74,7 +74,7 @@ Follow these steps to install and set up AWS Enterprise Scanner:
 
 ## Usage 🚀
 
-###Running the Scanner
+### Running the Scanner
 
 Execute AWS Enterprise Scanner using the provided scripts or directly via Python:
 
